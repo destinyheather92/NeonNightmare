@@ -1,0 +1,2123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Neon Nightmare: A Horror Metal Fever Dream</title>
+  <style>
+    /* Core theme variables. JavaScript flips these for Neon/Nightmare mode. */
+    :root {
+      --bg: #050006;
+      --ink: #fff6ff;
+      --muted: #c2a7ca;
+      --red: #ff174f;
+      --pink: #ff3bd4;
+      --purple: #8d35ff;
+      --blue: #00d9ff;
+      --acid: #b6ff00;
+      --panel: rgba(16, 5, 22, 0.78);
+      --panel-strong: rgba(28, 4, 34, 0.92);
+      --border: rgba(255, 59, 212, 0.5);
+      --scan-opacity: 0.18;
+      --static-opacity: 0.2;
+      --glow: 0 0 16px rgba(255, 23, 79, 0.9), 0 0 40px rgba(141, 53, 255, 0.65);
+    }
+
+    body.neon-mode {
+      --bg: #020914;
+      --muted: #b7edff;
+      --panel: rgba(0, 18, 34, 0.78);
+      --panel-strong: rgba(0, 28, 44, 0.92);
+      --border: rgba(0, 217, 255, 0.55);
+      --scan-opacity: 0.12;
+      --static-opacity: 0.13;
+      --glow: 0 0 18px rgba(0, 217, 255, 0.95), 0 0 44px rgba(255, 59, 212, 0.65);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      overflow-x: hidden;
+      color: var(--ink);
+      font-family: "Arial Black", Impact, Haettenschweiler, sans-serif;
+      background:
+        radial-gradient(circle at 20% 12%, rgba(255, 59, 212, 0.22), transparent 27rem),
+        radial-gradient(circle at 82% 4%, rgba(0, 217, 255, 0.18), transparent 25rem),
+        radial-gradient(circle at 50% 88%, rgba(255, 23, 79, 0.2), transparent 32rem),
+        linear-gradient(135deg, #020004 0%, var(--bg) 46%, #120014 100%);
+      letter-spacing: 0;
+    }
+
+    /* Persistent VHS scanlines and static grain overlays. */
+    body::before,
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 20;
+    }
+
+    body::before {
+      opacity: var(--scan-opacity);
+      background:
+        repeating-linear-gradient(
+          to bottom,
+          rgba(255, 255, 255, 0.14) 0 1px,
+          transparent 1px 4px
+        );
+      mix-blend-mode: screen;
+      animation: scan-roll 9s linear infinite;
+    }
+
+    body::after {
+      opacity: var(--static-opacity);
+      background-image:
+        radial-gradient(circle, rgba(255, 255, 255, 0.7) 0 1px, transparent 1px),
+        radial-gradient(circle, rgba(255, 0, 93, 0.35) 0 1px, transparent 1px);
+      background-size: 5px 5px, 9px 9px;
+      animation: static-drift 0.36s steps(3) infinite;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    button {
+      font: inherit;
+    }
+
+    .page {
+      position: relative;
+      z-index: 1;
+      isolation: isolate;
+    }
+
+    .page::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+      background:
+        linear-gradient(110deg, transparent 0 42%, rgba(255, 23, 79, 0.14) 42% 43%, transparent 43%),
+        linear-gradient(70deg, transparent 0 56%, rgba(0, 217, 255, 0.1) 56% 57%, transparent 57%);
+      filter: blur(0.4px);
+    }
+
+    .page::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      opacity: 0.18;
+      background:
+        repeating-linear-gradient(37deg, transparent 0 18px, rgba(255,255,255,0.08) 19px, transparent 20px),
+        repeating-linear-gradient(-18deg, transparent 0 31px, rgba(255,23,79,0.12) 32px, transparent 35px);
+      mask-image: linear-gradient(to bottom, transparent, black 16%, black 88%, transparent);
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 15;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.8rem clamp(1rem, 4vw, 3rem);
+      border-bottom: 1px solid rgba(255, 59, 212, 0.28);
+      background: rgba(4, 0, 8, 0.8);
+      backdrop-filter: blur(14px);
+      box-shadow: 0 0 28px rgba(255, 23, 79, 0.18);
+    }
+
+    .brand-mark {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      min-width: 0;
+      color: var(--blue);
+      text-shadow: 0 0 12px var(--blue);
+      text-transform: uppercase;
+      font-size: clamp(0.78rem, 2vw, 1rem);
+      white-space: nowrap;
+    }
+
+    .brand-skull {
+      display: grid;
+      place-items: center;
+      width: 2.2rem;
+      height: 2.2rem;
+      border: 1px solid rgba(0, 217, 255, 0.6);
+      color: #fff;
+      text-shadow: var(--glow);
+      box-shadow: inset 0 0 18px rgba(0, 217, 255, 0.25), 0 0 18px rgba(255, 59, 212, 0.3);
+      clip-path: polygon(18% 0, 82% 0, 100% 22%, 100% 78%, 82% 100%, 18% 100%, 0 78%, 0 22%);
+    }
+
+    .nav-controls {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 0.65rem;
+      flex-wrap: wrap;
+    }
+
+    .metal-button,
+    .mini-button {
+      position: relative;
+      min-height: 2.85rem;
+      border: 1px solid var(--border);
+      color: var(--ink);
+      background:
+        linear-gradient(135deg, rgba(255, 23, 79, 0.18), rgba(141, 53, 255, 0.22)),
+        #0b000d;
+      cursor: pointer;
+      text-transform: uppercase;
+      box-shadow: inset 0 0 18px rgba(255, 255, 255, 0.06), 0 0 18px rgba(255, 23, 79, 0.24);
+      transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+    }
+
+    .metal-button {
+      padding: 0.8rem 1rem;
+      clip-path: polygon(9px 0, calc(100% - 9px) 0, 100% 9px, 100% calc(100% - 9px), calc(100% - 9px) 100%, 9px 100%, 0 calc(100% - 9px), 0 9px);
+    }
+
+    .mini-button {
+      width: 2.85rem;
+      padding: 0;
+      display: grid;
+      place-items: center;
+      clip-path: polygon(8px 0, calc(100% - 8px) 0, 100% 50%, calc(100% - 8px) 100%, 8px 100%, 0 50%);
+    }
+
+    .metal-button:hover,
+    .mini-button:hover,
+    .metal-button:focus-visible,
+    .mini-button:focus-visible {
+      transform: translateY(-2px) skewX(-2deg);
+      border-color: var(--blue);
+      box-shadow: var(--glow);
+      outline: none;
+    }
+
+    .hero {
+      min-height: 92vh;
+      display: grid;
+      align-items: center;
+      padding: clamp(4rem, 8vw, 7rem) clamp(1rem, 5vw, 5rem) 3rem;
+      position: relative;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(18rem, 0.9fr);
+      gap: clamp(2rem, 6vw, 5rem);
+      align-items: center;
+      width: min(1180px, 100%);
+      margin: 0 auto;
+    }
+
+    .kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+      color: var(--acid);
+      text-transform: uppercase;
+      text-shadow: 0 0 14px rgba(182, 255, 0, 0.72);
+      font-size: clamp(0.78rem, 2vw, 1rem);
+    }
+
+    .title {
+      margin: 0.6rem 0 1rem;
+      max-width: 12ch;
+      font-size: clamp(3.6rem, 12vw, 9.5rem);
+      line-height: 0.78;
+      text-transform: uppercase;
+      letter-spacing: 0;
+      color: #fff;
+      text-shadow:
+        4px 0 0 var(--red),
+        -4px 0 0 var(--blue),
+        0 0 12px #fff,
+        0 0 32px var(--pink),
+        0 0 74px var(--purple);
+      filter: drop-shadow(0 18px 0 rgba(0, 0, 0, 0.65));
+    }
+
+    .glitch {
+      position: relative;
+      display: inline-block;
+      animation: title-flicker 5.4s infinite;
+    }
+
+    .glitch::before,
+    .glitch::after {
+      content: attr(data-text);
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.78;
+    }
+
+    .glitch::before {
+      color: var(--blue);
+      transform: translate(-0.045em, 0);
+      clip-path: inset(0 0 48% 0);
+      animation: glitch-top 2.7s infinite steps(2);
+    }
+
+    .glitch::after {
+      color: var(--red);
+      transform: translate(0.045em, 0);
+      clip-path: inset(48% 0 0 0);
+      animation: glitch-bottom 2.1s infinite steps(2);
+    }
+
+    .subtitle {
+      max-width: 48rem;
+      color: var(--muted);
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: clamp(1rem, 2.2vw, 1.25rem);
+      line-height: 1.7;
+      text-shadow: 0 0 10px rgba(255, 59, 212, 0.35);
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 0.8rem;
+      flex-wrap: wrap;
+      margin-top: 1.6rem;
+    }
+
+    .poster-skull {
+      position: relative;
+      display: grid;
+      place-items: center;
+      min-height: clamp(24rem, 48vw, 38rem);
+      filter: drop-shadow(0 0 34px rgba(255, 23, 79, 0.62));
+    }
+
+    .slasher-props {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 3;
+    }
+
+    .slasher-prop {
+      position: absolute;
+      display: grid;
+      place-items: center;
+      width: clamp(4.5rem, 12vw, 7.5rem);
+      aspect-ratio: 1;
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      background:
+        linear-gradient(135deg, rgba(0, 217, 255, 0.18), rgba(255, 23, 79, 0.2)),
+        rgba(0, 0, 0, 0.58);
+      box-shadow: 0 0 22px rgba(255, 23, 79, 0.28), inset 0 0 22px rgba(0, 0, 0, 0.64);
+      clip-path: polygon(0 0, calc(100% - 0.8rem) 0, 100% 0.8rem, 100% 100%, 0.8rem 100%, 0 calc(100% - 0.8rem));
+      animation: prop-float 4.8s ease-in-out infinite;
+    }
+
+    .slasher-prop svg {
+      width: 76%;
+      height: 76%;
+      overflow: visible;
+      filter: drop-shadow(0 0 9px var(--blue)) drop-shadow(0 0 16px var(--pink));
+    }
+
+    .prop-mask {
+      top: 6%;
+      right: 1%;
+      transform: rotate(10deg);
+    }
+
+    .prop-knife {
+      left: 0;
+      bottom: 12%;
+      transform: rotate(-14deg);
+      animation-delay: -1.2s;
+    }
+
+    .prop-vhs {
+      right: 5%;
+      bottom: 2%;
+      transform: rotate(7deg);
+      animation-delay: -2.1s;
+    }
+
+    .slasher-strip {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+
+    .slasher-tile {
+      position: relative;
+      min-height: 8.5rem;
+      padding: 0;
+      overflow: hidden;
+      border: 1px solid rgba(0, 217, 255, 0.32);
+      background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.08), transparent 40%),
+        rgba(0, 0, 0, 0.52);
+      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.7), 0 0 18px rgba(255, 59, 212, 0.15);
+      cursor: crosshair;
+      transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease, filter 180ms ease;
+    }
+
+    .slasher-tile::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      pointer-events: none;
+      background:
+        linear-gradient(to bottom, transparent 0 58%, rgba(0, 0, 0, 0.86) 82%),
+        repeating-linear-gradient(to bottom, transparent 0 7px, rgba(255, 255, 255, 0.09) 8px, transparent 9px);
+      opacity: 0.86;
+    }
+
+    .slasher-tile svg {
+      position: absolute;
+      inset: 0 0 2.35rem;
+      z-index: 1;
+      width: 100%;
+      height: calc(100% - 2.35rem);
+      opacity: 0.9;
+      filter: drop-shadow(0 0 10px var(--pink));
+    }
+
+    .slasher-caption {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 3;
+      min-height: 2.35rem;
+      display: grid;
+      place-items: center;
+      padding: 0.35rem 0.5rem;
+      color: #fff;
+      background: rgba(4, 0, 8, 0.92);
+      border-top: 1px solid rgba(255, 59, 212, 0.35);
+      font-size: 0.86rem;
+      text-transform: uppercase;
+      text-align: center;
+      text-shadow: 1px 0 var(--red), -1px 0 var(--blue), 0 0 8px rgba(0, 217, 255, 0.55);
+    }
+
+    .slasher-tile:hover,
+    .slasher-tile:focus-visible,
+    .slasher-tile.screaming {
+      transform: translateY(-0.35rem) rotate(-1deg) scale(1.03);
+      border-color: var(--red);
+      filter: contrast(1.25) saturate(1.35);
+      box-shadow: 0 0 24px rgba(255, 23, 79, 0.62), 0 0 36px rgba(0, 217, 255, 0.3);
+      outline: none;
+    }
+
+    .slasher-tile.screaming .slasher-caption::after {
+      content: "  SCREAM!";
+      color: var(--acid);
+      text-shadow: 0 0 10px var(--acid);
+    }
+
+    .skull-svg {
+      width: min(100%, 34rem);
+      height: auto;
+      overflow: visible;
+      animation: skull-float 4.5s ease-in-out infinite;
+    }
+
+    .skull-shell {
+      fill: rgba(246, 242, 255, 0.94);
+      stroke: var(--pink);
+      stroke-width: 4;
+      filter: drop-shadow(0 0 16px rgba(255, 59, 212, 0.9));
+    }
+
+    .skull-hole {
+      fill: #050006;
+      stroke: var(--blue);
+      stroke-width: 3;
+    }
+
+    .skull-crack {
+      fill: none;
+      stroke: var(--red);
+      stroke-width: 4;
+      stroke-linecap: square;
+      filter: drop-shadow(0 0 8px var(--red));
+      animation: crack-pulse 1.8s ease-in-out infinite;
+    }
+
+    .chain {
+      position: absolute;
+      width: 4.2rem;
+      height: 92%;
+      top: 0;
+      opacity: 0.68;
+      background:
+        radial-gradient(ellipse at center, transparent 38%, rgba(199, 230, 255, 0.85) 40% 47%, transparent 49%) center / 2.2rem 3.1rem repeat-y;
+      filter: drop-shadow(0 0 10px rgba(0, 217, 255, 0.8));
+      animation: chain-sway 5s ease-in-out infinite;
+    }
+
+    .chain.left {
+      left: 3%;
+      transform: rotate(7deg);
+    }
+
+    .chain.right {
+      right: 3%;
+      transform: rotate(-6deg);
+      animation-delay: -1.5s;
+    }
+
+    section {
+      padding: clamp(3.5rem, 8vw, 6rem) clamp(1rem, 5vw, 5rem);
+      position: relative;
+    }
+
+    .section-inner {
+      width: min(1180px, 100%);
+      margin: 0 auto;
+    }
+
+    .section-heading {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1.6rem;
+      border-bottom: 2px solid rgba(255, 23, 79, 0.45);
+      box-shadow: 0 14px 22px -22px var(--red);
+    }
+
+    h2 {
+      margin: 0 0 0.55rem;
+      color: #fff;
+      font-size: clamp(2.2rem, 7vw, 4.8rem);
+      line-height: 0.9;
+      text-transform: uppercase;
+      text-shadow: 3px 0 var(--red), -3px 0 var(--blue), 0 0 24px var(--pink);
+    }
+
+    .section-note {
+      margin: 0 0 0.8rem;
+      color: var(--muted);
+      font-family: Arial, Helvetica, sans-serif;
+      font-weight: 700;
+      text-align: right;
+    }
+
+    .pit-board {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(18rem, 0.8fr);
+      gap: 1rem;
+      align-items: stretch;
+    }
+
+    .pit-stage,
+    .quote-machine,
+    .setlist,
+    .nightmare-card,
+    .gallery-card {
+      position: relative;
+      border: 1px solid var(--border);
+      background:
+        linear-gradient(145deg, rgba(255, 255, 255, 0.06), transparent 34%),
+        linear-gradient(135deg, var(--panel), rgba(8, 0, 12, 0.88));
+      box-shadow: inset 0 0 28px rgba(255, 255, 255, 0.04), 0 0 28px rgba(141, 53, 255, 0.18);
+      overflow: hidden;
+    }
+
+    .pit-stage {
+      min-height: 26rem;
+      padding: 1rem;
+      display: grid;
+      place-items: center;
+      clip-path: polygon(1rem 0, calc(100% - 1rem) 0, 100% 1rem, 100% calc(100% - 1rem), calc(100% - 1rem) 100%, 1rem 100%, 0 calc(100% - 1rem), 0 1rem);
+    }
+
+    .pit-stage::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      opacity: 0.32;
+      background:
+        repeating-conic-gradient(from 12deg, rgba(255,23,79,0.35) 0 8deg, transparent 8deg 18deg),
+        radial-gradient(circle at center, transparent 0 22%, rgba(255,23,79,0.3) 23% 24%, transparent 25% 36%, rgba(0,217,255,0.22) 37% 38%, transparent 39%);
+      animation: vortex 14s linear infinite;
+    }
+
+    .pit-core {
+      position: relative;
+      width: min(20rem, 72vw);
+      aspect-ratio: 1;
+      border: 2px solid rgba(255, 255, 255, 0.4);
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background:
+        radial-gradient(circle, rgba(255, 23, 79, 0.38), transparent 36%),
+        radial-gradient(circle, rgba(0, 217, 255, 0.18), transparent 62%);
+      box-shadow: inset 0 0 42px rgba(0, 0, 0, 0.75), 0 0 46px rgba(255, 23, 79, 0.45);
+      cursor: pointer;
+      user-select: none;
+      transition: transform 180ms ease, filter 180ms ease;
+      z-index: 1;
+    }
+
+    .pit-core:hover {
+      transform: scale(1.03) rotate(-2deg);
+      filter: saturate(1.4);
+    }
+
+    .pit-core span {
+      display: block;
+      text-align: center;
+      text-transform: uppercase;
+      font-size: clamp(2.2rem, 8vw, 4.8rem);
+      line-height: 0.8;
+      text-shadow: var(--glow);
+    }
+
+    .pit-count {
+      position: absolute;
+      right: 1rem;
+      bottom: 1rem;
+      color: var(--acid);
+      font-size: 0.9rem;
+      text-shadow: 0 0 12px var(--acid);
+      z-index: 2;
+    }
+
+    .game-cabinet {
+      position: relative;
+      z-index: 2;
+      width: min(100%, 42rem);
+      display: grid;
+      gap: 0.75rem;
+    }
+
+    .game-hud {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0.45rem;
+      text-transform: uppercase;
+      font-size: clamp(0.72rem, 2vw, 0.92rem);
+    }
+
+    .game-hud span {
+      min-height: 2.5rem;
+      display: grid;
+      place-items: center;
+      padding: 0.35rem;
+      border: 1px solid rgba(0, 217, 255, 0.42);
+      background: rgba(0, 0, 0, 0.52);
+      color: var(--acid);
+      text-align: center;
+      text-shadow: 0 0 10px var(--acid);
+    }
+
+    .game-arena {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      min-height: 19rem;
+      overflow: hidden;
+      border: 2px solid rgba(255, 255, 255, 0.28);
+      background:
+        linear-gradient(rgba(0, 217, 255, 0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 23, 79, 0.1) 1px, transparent 1px),
+        radial-gradient(circle at 50% 50%, rgba(255, 23, 79, 0.2), transparent 42%),
+        rgba(0, 0, 0, 0.72);
+      background-size: 34px 34px, 34px 34px, auto, auto;
+      box-shadow: inset 0 0 38px rgba(255, 23, 79, 0.28), 0 0 25px rgba(0, 217, 255, 0.28);
+    }
+
+    .game-arena.shake {
+      animation: arena-shake 180ms steps(2) 4;
+    }
+
+    .game-arena::before {
+      content: "INSERT SOUL";
+      position: absolute;
+      inset: auto 0 0.65rem;
+      color: rgba(255, 255, 255, 0.12);
+      font-size: clamp(2rem, 10vw, 5.6rem);
+      line-height: 0.8;
+      text-align: center;
+      text-shadow: 3px 0 rgba(255, 23, 79, 0.25), -3px 0 rgba(0, 217, 255, 0.25);
+    }
+
+    .game-arena::after {
+      content: "CAMP TAPE 1984";
+      position: absolute;
+      top: 0.85rem;
+      right: 0.9rem;
+      z-index: 1;
+      padding: 0.25rem 0.45rem;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: rgba(255, 255, 255, 0.45);
+      background: rgba(0, 0, 0, 0.46);
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      transform: rotate(3deg);
+    }
+
+    .player,
+    .sigil,
+    .enemy,
+    .ghost-text {
+      position: absolute;
+      display: grid;
+      place-items: center;
+      translate: -50% -50%;
+      user-select: none;
+      pointer-events: none;
+    }
+
+    .player {
+      width: 2.4rem;
+      height: 2.4rem;
+      z-index: 4;
+      border: 2px solid #fff;
+      border-radius: 50%;
+      color: #fff;
+      background: radial-gradient(circle, var(--blue), var(--purple) 55%, #050006 56%);
+      box-shadow: 0 0 14px var(--blue), 0 0 28px var(--pink);
+      font-size: 1.15rem;
+    }
+
+    .sigil {
+      width: 2rem;
+      height: 2rem;
+      z-index: 3;
+      color: var(--acid);
+      font-size: 1.6rem;
+      text-shadow: 0 0 12px var(--acid), 0 0 22px var(--pink);
+      animation: sigil-pulse 800ms ease-in-out infinite alternate;
+    }
+
+    .enemy {
+      width: 2.6rem;
+      height: 2.6rem;
+      z-index: 3;
+      color: #fff;
+      border: 1px solid var(--red);
+      background: rgba(255, 23, 79, 0.2);
+      box-shadow: 0 0 18px var(--red);
+      clip-path: polygon(50% 0, 100% 35%, 82% 100%, 18% 100%, 0 35%);
+      font-size: 1.1rem;
+    }
+
+    .ghost-text {
+      z-index: 2;
+      color: rgba(255, 255, 255, 0.18);
+      font-size: clamp(1.1rem, 4vw, 2.2rem);
+      text-transform: uppercase;
+      text-shadow: 2px 0 rgba(255, 23, 79, 0.65), -2px 0 rgba(0, 217, 255, 0.65);
+      animation: ghost-drift 1.5s ease-out forwards;
+    }
+
+    .game-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 6;
+      display: grid;
+      place-items: center;
+      padding: 1rem;
+      color: #fff;
+      background: rgba(0, 0, 0, 0.6);
+      text-align: center;
+      text-transform: uppercase;
+      text-shadow: 3px 0 var(--red), -3px 0 var(--blue), 0 0 20px var(--pink);
+      font-size: clamp(1.5rem, 5vw, 3.8rem);
+      line-height: 0.95;
+    }
+
+    .game-overlay.hidden {
+      display: none;
+    }
+
+    .game-controls {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 0.75rem;
+      align-items: center;
+    }
+
+    .game-help {
+      margin: 0;
+      color: var(--muted);
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 0.92rem;
+      font-weight: 800;
+      line-height: 1.4;
+    }
+
+    .dpad {
+      display: none;
+      grid-template-columns: repeat(3, 2.8rem);
+      gap: 0.28rem;
+      justify-content: center;
+    }
+
+    .dpad button {
+      width: 2.8rem;
+      height: 2.8rem;
+      border: 1px solid var(--border);
+      color: #fff;
+      background: rgba(0, 0, 0, 0.62);
+      box-shadow: 0 0 12px rgba(255, 59, 212, 0.3);
+    }
+
+    .dpad .blank {
+      visibility: hidden;
+    }
+
+    .quote-machine {
+      padding: 1.2rem;
+      display: flex;
+      min-height: 26rem;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .quote-output {
+      display: grid;
+      place-items: center;
+      min-height: 13rem;
+      padding: clamp(1rem, 3vw, 1.4rem);
+      color: #fff;
+      border: 1px dashed rgba(0, 217, 255, 0.45);
+      background:
+        linear-gradient(rgba(0, 0, 0, 0.78), rgba(0, 0, 0, 0.62)),
+        rgba(0, 0, 0, 0.35);
+      font-size: clamp(1.15rem, 3vw, 1.85rem);
+      line-height: 1.18;
+      text-transform: uppercase;
+      text-align: center;
+      font-family: Impact, "Arial Black", sans-serif;
+      text-shadow: 1px 1px 0 #000, 0 0 8px rgba(0, 217, 255, 0.45);
+    }
+
+    .quote-output.glitch {
+      display: grid;
+    }
+
+    .quote-output.glitch::before,
+    .quote-output.glitch::after {
+      opacity: 0.28;
+      filter: blur(0.4px);
+    }
+
+    .meter {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 0.35rem;
+      margin: 1rem 0;
+    }
+
+    .meter span {
+      height: 1.1rem;
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      background: rgba(255, 255, 255, 0.05);
+      box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+    }
+
+    .meter span.active {
+      background: linear-gradient(to top, var(--red), var(--pink), var(--blue));
+      box-shadow: 0 0 12px var(--pink);
+    }
+
+    .gallery-grid,
+    .nightmare-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1rem;
+    }
+
+    .gallery-card,
+    .nightmare-card {
+      min-height: 17rem;
+      padding: 1rem;
+      transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+    }
+
+    .gallery-card:hover,
+    .nightmare-card:hover,
+    .nightmare-card:focus-visible {
+      transform: translateY(-0.45rem) rotate(-1deg);
+      border-color: var(--blue);
+      box-shadow: var(--glow);
+      outline: none;
+    }
+
+    .gallery-icon {
+      display: block;
+      margin-bottom: 0.7rem;
+      font-size: clamp(3rem, 9vw, 5rem);
+      text-shadow: 3px 0 var(--red), -3px 0 var(--blue), 0 0 28px var(--pink);
+      transition: transform 180ms ease;
+    }
+
+    .gallery-card:hover .gallery-icon {
+      transform: scale(1.14) rotate(5deg);
+    }
+
+    .gallery-card h3,
+    .nightmare-card h3 {
+      margin: 0 0 0.65rem;
+      color: #fff;
+      font-size: clamp(1.35rem, 4vw, 2rem);
+      line-height: 0.95;
+      text-transform: uppercase;
+      text-shadow: 2px 0 var(--red), -2px 0 var(--blue);
+    }
+
+    .gallery-card p,
+    .nightmare-card p,
+    .setlist li {
+      color: var(--muted);
+      font-family: Arial, Helvetica, sans-serif;
+      font-weight: 700;
+      line-height: 1.55;
+    }
+
+    .blood-edge {
+      position: absolute;
+      inset: 0 0 auto;
+      height: 4rem;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 12% -20%, var(--red) 0 1.4rem, transparent 1.5rem),
+        radial-gradient(circle at 36% -24%, var(--red) 0 2rem, transparent 2.1rem),
+        radial-gradient(circle at 70% -18%, var(--red) 0 1.6rem, transparent 1.7rem),
+        linear-gradient(var(--red), transparent 66%);
+      opacity: 0.62;
+      filter: drop-shadow(0 0 10px var(--red));
+    }
+
+    .setlist {
+      padding: clamp(1rem, 3vw, 1.6rem);
+    }
+
+    .setlist-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+
+    .audio-status {
+      color: var(--acid);
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 0.9rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      text-shadow: 0 0 8px rgba(182, 255, 0, 0.6);
+    }
+
+    .setlist ol {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.75rem 1rem;
+      margin: 0;
+      padding-left: 1.4rem;
+    }
+
+    .setlist li {
+      position: relative;
+      padding: 0.75rem 0.75rem 0.75rem 0.2rem;
+      border-bottom: 1px solid rgba(255, 59, 212, 0.24);
+      cursor: pointer;
+      transition: color 180ms ease, transform 180ms ease, text-shadow 180ms ease;
+    }
+
+    .setlist li:hover,
+    .setlist li.playing {
+      color: #fff;
+      transform: translateX(0.35rem);
+      text-shadow: 0 0 16px var(--blue);
+    }
+
+    .setlist li.playing::after {
+      content: " NOW PLAYING";
+      color: var(--acid);
+      font-family: "Arial Black", Impact, sans-serif;
+      font-size: 0.78rem;
+      text-shadow: 0 0 10px var(--acid);
+    }
+
+    .setlist li.sound-hit {
+      animation: track-hit 420ms ease;
+    }
+
+    .nightmare-card {
+      min-height: 18rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      cursor: pointer;
+      text-align: left;
+      clip-path: polygon(0 0, calc(100% - 1.3rem) 0, 100% 1.3rem, 100% 100%, 1.3rem 100%, 0 calc(100% - 1.3rem));
+    }
+
+    .nightmare-message {
+      min-height: 4.4rem;
+      display: grid;
+      align-items: center;
+      padding-top: 0.8rem;
+      color: var(--acid);
+      text-shadow: 0 0 10px rgba(182, 255, 0, 0.8);
+      font-family: Arial, Helvetica, sans-serif;
+      font-weight: 900;
+      opacity: 0;
+      transform: translateY(0.4rem);
+      transition: opacity 180ms ease, transform 180ms ease;
+    }
+
+    .nightmare-card.revealed .nightmare-message {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .footer {
+      padding: 2.5rem 1rem 4rem;
+      text-align: center;
+      color: var(--muted);
+      font-family: Arial, Helvetica, sans-serif;
+      font-weight: 800;
+    }
+
+    .corruption-flash {
+      position: fixed;
+      inset: 0;
+      z-index: 30;
+      pointer-events: none;
+      opacity: 0;
+      background:
+        linear-gradient(90deg, rgba(255,0,80,0.22), rgba(0,217,255,0.18)),
+        repeating-linear-gradient(to bottom, transparent 0 8px, rgba(255,255,255,0.65) 9px, transparent 10px);
+    }
+
+    body.corrupted .page {
+      animation: page-corrupt 0.82s steps(2) 4;
+    }
+
+    body.corrupted .corruption-flash {
+      animation: flash-burst 0.82s steps(2) 4;
+    }
+
+    body.corrupted .glitch,
+    body.corrupted h2 {
+      animation: violent-glitch 0.2s steps(2) 12;
+    }
+
+    body.corrupted .quote-output {
+      animation: warning-jitter 0.24s steps(2) 6;
+    }
+
+    .pit-spark {
+      position: absolute;
+      width: 0.75rem;
+      height: 0.75rem;
+      border-radius: 50%;
+      pointer-events: none;
+      background: var(--acid);
+      box-shadow: 0 0 18px var(--acid), 0 0 28px var(--pink);
+      animation: spark-fly 900ms ease-out forwards;
+      z-index: 4;
+    }
+
+    @keyframes scan-roll {
+      from { transform: translateY(-1rem); }
+      to { transform: translateY(1rem); }
+    }
+
+    @keyframes static-drift {
+      0% { transform: translate(0, 0); }
+      33% { transform: translate(2px, -2px); }
+      66% { transform: translate(-2px, 1px); }
+      100% { transform: translate(1px, 2px); }
+    }
+
+    @keyframes glitch-top {
+      0%, 82%, 100% { transform: translate(-0.045em, 0); }
+      84% { transform: translate(-0.12em, -0.02em); }
+      88% { transform: translate(0.1em, 0.025em); }
+    }
+
+    @keyframes glitch-bottom {
+      0%, 72%, 100% { transform: translate(0.045em, 0); }
+      76% { transform: translate(0.14em, 0.02em); }
+      80% { transform: translate(-0.08em, -0.02em); }
+    }
+
+    @keyframes title-flicker {
+      0%, 8%, 10%, 12%, 100% { opacity: 1; filter: brightness(1.1); }
+      9%, 11% { opacity: 0.72; filter: brightness(2); }
+      48% { filter: brightness(1.65); }
+      49% { filter: brightness(0.72); }
+    }
+
+    @keyframes skull-float {
+      0%, 100% { transform: translateY(0) rotate(-1deg); }
+      50% { transform: translateY(-1.2rem) rotate(1.5deg); }
+    }
+
+    @keyframes crack-pulse {
+      0%, 100% { stroke-width: 3; opacity: 0.62; }
+      50% { stroke-width: 5; opacity: 1; }
+    }
+
+    @keyframes chain-sway {
+      0%, 100% { translate: 0 0; }
+      50% { translate: 0.45rem 0.8rem; }
+    }
+
+    @keyframes vortex {
+      to { transform: rotate(360deg) scale(1.08); }
+    }
+
+    @keyframes page-corrupt {
+      0% { transform: translate(0, 0) skewX(0); filter: hue-rotate(0deg) contrast(1); }
+      20% { transform: translate(8px, -4px) skewX(2deg); filter: hue-rotate(80deg) contrast(1.8); }
+      40% { transform: translate(-10px, 5px) skewX(-4deg); filter: hue-rotate(-80deg) contrast(2.1); }
+      60% { transform: translate(5px, 2px) skewX(3deg); filter: invert(0.12) saturate(2); }
+      100% { transform: translate(0, 0) skewX(0); filter: hue-rotate(0deg) contrast(1); }
+    }
+
+    @keyframes flash-burst {
+      0%, 100% { opacity: 0; }
+      20%, 60% { opacity: 0.9; }
+      40% { opacity: 0.35; }
+    }
+
+    @keyframes violent-glitch {
+      0% { transform: translate(0, 0); }
+      50% { transform: translate(-0.08em, 0.03em); }
+      100% { transform: translate(0.08em, -0.03em); }
+    }
+
+    @keyframes warning-jitter {
+      0% { transform: translate(0, 0); }
+      50% { transform: translate(-2px, 1px); }
+      100% { transform: translate(2px, -1px); }
+    }
+
+    @keyframes spark-fly {
+      to {
+        transform: translate(var(--x), var(--y)) scale(0);
+        opacity: 0;
+      }
+    }
+
+    @keyframes sigil-pulse {
+      from { transform: scale(0.9) rotate(-8deg); filter: brightness(1); }
+      to { transform: scale(1.2) rotate(8deg); filter: brightness(1.8); }
+    }
+
+    @keyframes ghost-drift {
+      from { opacity: 0.8; transform: translateY(0) skewX(0); }
+      to { opacity: 0; transform: translateY(-4rem) skewX(-12deg); }
+    }
+
+    @keyframes arena-shake {
+      0% { transform: translate(0, 0); }
+      25% { transform: translate(5px, -3px); }
+      50% { transform: translate(-6px, 2px); }
+      75% { transform: translate(4px, 5px); }
+      100% { transform: translate(0, 0); }
+    }
+
+    @keyframes track-hit {
+      0% { filter: brightness(1); }
+      35% { filter: brightness(2.4); transform: translateX(0.55rem) scale(1.02); }
+      100% { filter: brightness(1); }
+    }
+
+    @keyframes prop-float {
+      0%, 100% { translate: 0 0; filter: brightness(1); }
+      50% { translate: 0 -0.7rem; filter: brightness(1.25); }
+    }
+
+    @media (max-width: 860px) {
+      .topbar {
+        align-items: flex-start;
+      }
+
+      .brand-mark span:last-child {
+        white-space: normal;
+      }
+
+      .hero-grid,
+      .pit-board {
+        grid-template-columns: 1fr;
+      }
+
+      .poster-skull {
+        min-height: 21rem;
+      }
+
+      .gallery-grid,
+      .nightmare-grid,
+      .slasher-strip,
+      .setlist ol {
+        grid-template-columns: 1fr;
+      }
+
+      .game-hud {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .game-controls {
+        grid-template-columns: 1fr;
+      }
+
+      .dpad {
+        display: grid;
+      }
+
+      .section-heading {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .section-note {
+        text-align: left;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .topbar {
+        position: relative;
+      }
+
+      .nav-controls {
+        width: 100%;
+        justify-content: flex-start;
+      }
+
+      .metal-button {
+        flex: 1 1 11rem;
+      }
+
+      .hero {
+        min-height: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="corruption-flash" aria-hidden="true"></div>
+
+  <main class="page">
+    <header class="topbar">
+      <div class="brand-mark" aria-label="Neon Nightmare signal">
+        <span class="brand-skull">☠</span>
+        <span>Midnight Channel: Signal Unstable</span>
+      </div>
+      <nav class="nav-controls" aria-label="Interactive controls">
+        <button class="mini-button" id="modeToggle" type="button" title="Toggle Neon Mode">☾</button>
+        <button class="metal-button" id="corruptButton" type="button">Corrupt Tape</button>
+      </nav>
+    </header>
+
+    <!-- Hero intro: the poster-like first impression. -->
+    <section class="hero" id="hero">
+      <div class="hero-grid">
+        <div>
+          <div class="kicker">✦ Live from the broken arcade ✦</div>
+          <h1 class="title">
+            <span class="glitch" data-text="Neon">Neon</span><br />
+            <span class="glitch" data-text="Nightmare">Nightmare</span>
+          </h1>
+          <p class="subtitle">
+            A horror metal fever dream transmitted through a corrupted VHS deck.
+            Enter the pit, wake the skulls, and choose which nightmare gets the encore.
+          </p>
+          <div class="hero-actions">
+            <a class="metal-button" href="#pit">Enter the Pit</a>
+            <a class="metal-button" href="#nightmares">Choose Your Nightmare</a>
+          </div>
+        </div>
+
+        <!-- SVG skull keeps the artwork self-contained and responsive. -->
+        <div class="poster-skull" aria-hidden="true">
+          <div class="chain left"></div>
+          <div class="chain right"></div>
+          <div class="slasher-props">
+            <div class="slasher-prop prop-mask">
+              <svg viewBox="0 0 120 120">
+                <path d="M60 10c28 0 43 18 43 47 0 34-22 53-43 53S17 91 17 57C17 28 32 10 60 10Z" fill="#f8f3ff" stroke="#ff174f" stroke-width="4" />
+                <path d="M38 47c10-8 23 0 21 11-13 5-24 2-21-11ZM82 47c-10-8-23 0-21 11 13 5 24 2 21-11Z" fill="#070008" />
+                <path d="M60 64l-8 18h16l-8-18ZM43 91h34" stroke="#00d9ff" stroke-width="4" stroke-linecap="square" />
+              </svg>
+            </div>
+            <div class="slasher-prop prop-knife">
+              <svg viewBox="0 0 120 120">
+                <path d="M20 99l48-48 17 17-48 48c-7-3-12-8-17-17Z" fill="#1a061f" stroke="#ff3bd4" stroke-width="4" />
+                <path d="M61 43 100 4c8 22 4 45-23 64L61 43Z" fill="#eafaff" stroke="#00d9ff" stroke-width="4" />
+                <path d="M70 42 94 18" stroke="#ff174f" stroke-width="4" />
+              </svg>
+            </div>
+            <div class="slasher-prop prop-vhs">
+              <svg viewBox="0 0 120 120">
+                <path d="M13 30h94v60H13z" fill="#100014" stroke="#00d9ff" stroke-width="4" />
+                <path d="M28 44h64v17H28z" fill="#f8f3ff" opacity="0.9" />
+                <circle cx="39" cy="75" r="11" fill="#050006" stroke="#ff174f" stroke-width="4" />
+                <circle cx="81" cy="75" r="11" fill="#050006" stroke="#ff174f" stroke-width="4" />
+                <path d="M50 75h20" stroke="#ff3bd4" stroke-width="4" />
+              </svg>
+            </div>
+          </div>
+          <svg class="skull-svg" viewBox="0 0 420 520" role="img" aria-label="Neon cracked skull">
+            <path class="skull-shell" d="M210 28C112 28 54 91 54 193c0 67 26 110 64 132v70c0 39 31 70 70 70h44c39 0 70-31 70-70v-70c38-22 64-65 64-132C366 91 308 28 210 28Z" />
+            <path class="skull-hole" d="M116 201c4-39 33-62 70-45 19 9 23 42 6 60-21 22-81 32-76-15Z" />
+            <path class="skull-hole" d="M304 201c-4-39-33-62-70-45-19 9-23 42-6 60 21 22 81 32 76-15Z" />
+            <path class="skull-hole" d="M210 246l-34 72h68l-34-72Z" />
+            <path class="skull-crack" d="M215 42l-20 58 28 22-31 54 27 36-18 55" />
+            <path class="skull-crack" d="M82 309c38 20 74 27 128 27s90-7 128-27" />
+            <path class="skull-hole" d="M153 378h28v68h-28zM196 372h28v78h-28zM239 378h28v68h-28z" />
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- Enter the Pit: a playable corrupted arcade arena with a warning generator. -->
+    <section id="pit">
+      <div class="section-inner">
+        <div class="section-heading">
+          <h2 class="glitch" data-text="Enter the Pit">Enter the Pit</h2>
+          <p class="section-note">Collect sigils. Dodge glitches. The game cheats.</p>
+        </div>
+
+        <div class="pit-board">
+          <div class="pit-stage">
+            <div class="blood-edge" aria-hidden="true"></div>
+            <div class="game-cabinet">
+              <div class="game-hud" aria-label="Corrupted arcade status">
+                <span id="scoreReadout">Score: 000</span>
+                <span id="healthReadout">Signal: 100%</span>
+                <span id="levelReadout">Wave: 01</span>
+                <span id="objectiveReadout">Sigils: 0/6</span>
+              </div>
+              <div class="game-arena" id="gameArena" tabindex="0" aria-label="Corrupted arcade arena">
+                <div class="game-overlay" id="gameOverlay">Press Start<br />The Cabinet Is Hungry</div>
+                <div class="player" id="player" aria-hidden="true">☠</div>
+                <div class="sigil" id="sigil" aria-hidden="true">✦</div>
+              </div>
+              <div class="game-controls">
+                <p class="game-help">Arrow keys or WASD move. Grab six sigils before the glitches eat your signal.</p>
+                <button class="metal-button" id="startGameButton" type="button">Start Nightmare</button>
+                <div class="dpad" aria-label="Mobile movement controls">
+                  <span class="blank"></span>
+                  <button type="button" data-dir="up">▲</button>
+                  <span class="blank"></span>
+                  <button type="button" data-dir="left">◀</button>
+                  <button type="button" data-dir="down">▼</button>
+                  <button type="button" data-dir="right">▶</button>
+                </div>
+              </div>
+            </div>
+            <div class="pit-count" id="pitCount">Pit energy: 0%</div>
+          </div>
+
+          <aside class="quote-machine" aria-labelledby="warningTitle">
+            <div>
+              <h3 id="warningTitle">Warning Generator</h3>
+              <div class="quote-output" id="quoteOutput">The tape is watching you rewind.</div>
+              <div class="meter" id="fearMeter" aria-label="Fear meter"></div>
+            </div>
+            <button class="metal-button" id="quoteButton" type="button">Generate Warning</button>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- Graveyard Gallery: hoverable horror-metal poster tiles. -->
+    <section id="gallery">
+      <div class="section-inner">
+        <div class="section-heading">
+          <h2 class="glitch" data-text="Graveyard Gallery">Graveyard Gallery</h2>
+          <p class="section-note">Hover the haunted relics.</p>
+        </div>
+
+        <div class="gallery-grid">
+          <article class="gallery-card">
+            <span class="gallery-icon" aria-hidden="true">☠</span>
+            <h3>Chrome Skull Altar</h3>
+            <p>A cracked idol lit by pink lightning, humming power chords through its teeth.</p>
+          </article>
+          <article class="gallery-card">
+            <span class="gallery-icon" aria-hidden="true">⚰</span>
+            <h3>Amplified Coffin</h3>
+            <p>The lid rattles whenever the bass drops below six feet underground.</p>
+          </article>
+          <article class="gallery-card">
+            <span class="gallery-icon" aria-hidden="true">⛓</span>
+            <h3>Chainstorm Gate</h3>
+            <p>Rusty links swing like pendulums over a crowd chanting in reverse.</p>
+          </article>
+        </div>
+
+        <div class="slasher-strip" aria-label="Original 80s slasher-inspired poster graphics">
+          <div class="slasher-tile" data-label="Lake Evidence" tabindex="0">
+            <svg viewBox="0 0 180 110">
+              <rect width="180" height="110" fill="#050006" />
+              <path d="M0 78c30-15 51-15 80 0s55 15 100 0v32H0Z" fill="#00d9ff" opacity="0.22" />
+              <path d="M86 20h34v62H86z" fill="#111" stroke="#ff174f" stroke-width="4" />
+              <path d="M94 32h18M94 44h18M94 56h18" stroke="#f8f3ff" stroke-width="3" />
+              <path d="M20 87h145" stroke="#ff3bd4" stroke-width="3" stroke-dasharray="9 7" />
+            </svg>
+            <span class="slasher-caption">Lake Evidence</span>
+          </div>
+          <div class="slasher-tile" data-label="Final Frame" tabindex="0">
+            <svg viewBox="0 0 180 110">
+              <rect width="180" height="110" fill="#070008" />
+              <path d="M74 14c23 0 36 15 36 39 0 28-18 44-36 44S38 81 38 53c0-24 13-39 36-39Z" fill="#f8f3ff" stroke="#00d9ff" stroke-width="4" />
+              <path d="M56 49c9-7 19-1 18 8-11 4-20 2-18-8ZM92 49c-9-7-19-1-18 8 11 4 20 2 18-8Z" fill="#050006" />
+              <path d="M125 20l28 70" stroke="#ff174f" stroke-width="7" />
+            </svg>
+            <span class="slasher-caption">Final Frame</span>
+          </div>
+          <div class="slasher-tile" data-label="Phone Line" tabindex="0">
+            <svg viewBox="0 0 180 110">
+              <rect width="180" height="110" fill="#06000a" />
+              <path d="M41 40c25-21 73-21 98 0l-17 21c-18-11-46-11-64 0L41 40Z" fill="#1b0825" stroke="#ff3bd4" stroke-width="5" />
+              <path d="M68 66h44v23H68z" fill="#f8f3ff" stroke="#00d9ff" stroke-width="4" />
+              <path d="M27 20c42 21 84 21 126 0" stroke="#ff174f" stroke-width="4" stroke-dasharray="6 8" />
+            </svg>
+            <span class="slasher-caption">Phone Line</span>
+          </div>
+          <div class="slasher-tile" data-label="No Exit" tabindex="0">
+            <svg viewBox="0 0 180 110">
+              <rect width="180" height="110" fill="#070008" />
+              <path d="M24 25h132v60H24z" fill="#17051e" stroke="#ff174f" stroke-width="5" />
+              <path d="M45 55h90" stroke="#f8f3ff" stroke-width="8" />
+              <path d="M90 32v46" stroke="#00d9ff" stroke-width="6" />
+              <path d="M35 92l111-76" stroke="#ff3bd4" stroke-width="6" />
+            </svg>
+            <span class="slasher-caption">No Exit</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Haunted Setlist: clickable songs reveal the current track. -->
+    <section id="setlist">
+      <div class="section-inner">
+        <div class="section-heading">
+          <h2 class="glitch" data-text="Haunted Setlist">Haunted Setlist</h2>
+          <p class="section-note">Pick a track to wake the stage lights.</p>
+        </div>
+
+        <div class="setlist">
+          <div class="setlist-toolbar">
+            <span class="audio-status" id="audioStatus">Audio armed: click a track</span>
+            <button class="metal-button" id="stopAudioButton" type="button">Stop Audio</button>
+          </div>
+          <ol id="trackList">
+            <li>Static Ripper Overture</li>
+            <li>Blood Moon Feedback</li>
+            <li>Drive-In of Broken TVs</li>
+            <li>Six Strings for the Undead</li>
+            <li>Grave Dust Solo</li>
+            <li>Final Girl Funeral March</li>
+            <li>Night Drive Through the Mausoleum</li>
+            <li>Encore at the End of the World</li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- Choose Your Nightmare: cards reveal messages on click. -->
+    <section id="nightmares">
+      <div class="section-inner">
+        <div class="section-heading">
+          <h2 class="glitch" data-text="Choose Your Nightmare">Choose Your Nightmare</h2>
+          <p class="section-note">Each card opens a different bad door.</p>
+        </div>
+
+        <div class="nightmare-grid">
+          <button class="nightmare-card" type="button" data-message="Your reflection headbangs half a beat late. It is learning you.">
+            <span class="gallery-icon" aria-hidden="true">🩸</span>
+            <h3>Blood Drip Broadcast</h3>
+            <p>A red signal leaks from the ceiling and spells your name in distortion.</p>
+            <span class="nightmare-message">Click to reveal the curse.</span>
+          </button>
+          <button class="nightmare-card" type="button" data-message="The graveyard crowd knows every lyric, including the ones you never wrote.">
+            <span class="gallery-icon" aria-hidden="true">🪦</span>
+            <h3>Midnight Grave Choir</h3>
+            <p>Every tombstone is a speaker. Every speaker is breathing.</p>
+            <span class="nightmare-message">Click to reveal the curse.</span>
+          </button>
+          <button class="nightmare-card" type="button" data-message="The chains do not hold the door shut. They hold the audience in.">
+            <span class="gallery-icon" aria-hidden="true">⛓</span>
+            <h3>Backstage Chain Room</h3>
+            <p>Past the velvet rope, the walls sweat neon and old applause.</p>
+            <span class="nightmare-message">Click to reveal the curse.</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      Neon Nightmare is best viewed after midnight, volume unsafe, curtains closed.
+    </footer>
+  </main>
+
+  <script>
+    // Shared DOM references for the page interactions.
+    const body = document.body;
+    const corruptButton = document.querySelector("#corruptButton");
+    const modeToggle = document.querySelector("#modeToggle");
+    const quoteButton = document.querySelector("#quoteButton");
+    const quoteOutput = document.querySelector("#quoteOutput");
+    const pitCount = document.querySelector("#pitCount");
+    const fearMeter = document.querySelector("#fearMeter");
+    const nightmareCards = document.querySelectorAll(".nightmare-card");
+    const trackItems = document.querySelectorAll("#trackList li");
+    const gameArena = document.querySelector("#gameArena");
+    const playerEl = document.querySelector("#player");
+    const sigilEl = document.querySelector("#sigil");
+    const gameOverlay = document.querySelector("#gameOverlay");
+    const startGameButton = document.querySelector("#startGameButton");
+    const scoreReadout = document.querySelector("#scoreReadout");
+    const healthReadout = document.querySelector("#healthReadout");
+    const levelReadout = document.querySelector("#levelReadout");
+    const objectiveReadout = document.querySelector("#objectiveReadout");
+    const dpadButtons = document.querySelectorAll(".dpad button");
+    const audioStatus = document.querySelector("#audioStatus");
+    const stopAudioButton = document.querySelector("#stopAudioButton");
+    const slasherTiles = document.querySelectorAll(".slasher-tile");
+
+    // Random warnings rotate through the VHS-style quote machine.
+    const warnings = [
+      "Do not pause the tape during the solo.",
+      "Something in the static has your backstage pass.",
+      "The exit sign is only decorative.",
+      "Tonight's encore requires a pulse.",
+      "If the skull smiles, smile back slowly.",
+      "Your shadow just requested a song.",
+      "The fog machine is not plugged in.",
+      "Rewind three times to forget what saw you."
+    ];
+
+    let pitEnergy = 0;
+    let lastWarning = 0;
+    let animationFrame = 0;
+    let lastFrameTime = 0;
+    let gameRunning = false;
+    let score = 0;
+    let health = 100;
+    let wave = 1;
+    let collected = 0;
+    let hitCooldown = 0;
+
+    const keys = new Set();
+    const player = { x: 50, y: 50, speed: 42 };
+    const sigil = { x: 70, y: 40 };
+    const enemies = [];
+    let audioContext;
+    let activeAudioNodes = [];
+    let activeAudioTimers = [];
+    let lastScreamTime = 0;
+
+    const trackSongs = [
+      { bpm: 154, root: 82, riff: [1, 1, 1.5, 1, 0.75, 1, 2, 1], lead: [2, 2.25, 1.5, 1, 3, 2, 1.5, 0.75], mood: "Static Ripper" },
+      { bpm: 132, root: 98, riff: [1, 1, 0.67, 1, 1.5, 1, 0.75, 0.5], lead: [1.5, 1.33, 2, 1.5, 2.25, 2, 1.33, 1], mood: "Feedback Moon" },
+      { bpm: 145, root: 110, riff: [1, 0.75, 1, 1.5, 1.33, 1, 2, 0.75], lead: [2, 1.5, 2.25, 3, 2.25, 1.5, 1.33, 1], mood: "Drive-In Tape" },
+      { bpm: 168, root: 73, riff: [1, 1.26, 1.5, 1.26, 1, 0.75, 1, 0.5], lead: [2, 2.52, 3, 2.52, 2, 1.5, 1.26, 1], mood: "Six String Chase" },
+      { bpm: 118, root: 123, riff: [1, 1.2, 1.33, 1.6, 1.33, 1.2, 1, 0.67], lead: [2, 2.4, 2.66, 3.2, 2.66, 2.4, 2, 1.33], mood: "Dust Solo" },
+      { bpm: 104, root: 65, riff: [1, 1.26, 1.5, 1.68, 1.5, 1.26, 1, 0.75], lead: [2, 2.52, 3, 3.36, 3, 2.52, 2, 1.5], mood: "Funeral March" },
+      { bpm: 126, root: 92, riff: [1, 1.2, 1.5, 1.2, 1, 0.8, 1.5, 2], lead: [1.5, 2, 2.4, 3, 2.4, 2, 1.5, 1.2], mood: "Night Drive" },
+      { bpm: 176, root: 55, riff: [1, 1.33, 1.5, 2, 2.66, 2, 1.5, 1], lead: [2, 2.66, 3, 4, 5.33, 4, 3, 2], mood: "World End Encore" }
+    ];
+
+    // Build the fear meter bars with JavaScript so the meter can animate statefully.
+    for (let index = 0; index < 12; index += 1) {
+      const bar = document.createElement("span");
+      fearMeter.appendChild(bar);
+    }
+
+    function randomWarning() {
+      let next = Math.floor(Math.random() * warnings.length);
+      if (next === lastWarning) {
+        next = (next + 1) % warnings.length;
+      }
+      lastWarning = next;
+      quoteOutput.textContent = warnings[next];
+      quoteOutput.classList.remove("glitch");
+      void quoteOutput.offsetWidth;
+      quoteOutput.classList.add("glitch");
+      quoteOutput.dataset.text = warnings[next];
+    }
+
+    function updateFearMeter() {
+      const activeBars = Math.ceil((pitEnergy / 100) * 12);
+      fearMeter.querySelectorAll("span").forEach((bar, index) => {
+        bar.classList.toggle("active", index < activeBars);
+      });
+      pitCount.textContent = `Pit energy: ${pitEnergy}%`;
+    }
+
+    function getAudioContext() {
+      if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioContext.state === "suspended") {
+        audioContext.resume();
+      }
+      return audioContext;
+    }
+
+    function rememberAudioNode(node) {
+      activeAudioNodes.push(node);
+      return node;
+    }
+
+    function stopSetlistAudio() {
+      activeAudioTimers.forEach((timer) => clearTimeout(timer));
+      activeAudioTimers = [];
+      activeAudioNodes.forEach((node) => {
+        try {
+          if (typeof node.stop === "function") {
+            node.stop();
+          }
+          if (typeof node.disconnect === "function") {
+            node.disconnect();
+          }
+        } catch (error) {
+          // Stopping an already-finished oscillator is harmless.
+        }
+      });
+      activeAudioNodes = [];
+      audioStatus.textContent = "Audio stopped";
+    }
+
+    function playNoiseBurst(context, start, duration, volume) {
+      const buffer = context.createBuffer(1, context.sampleRate * duration, context.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let index = 0; index < data.length; index += 1) {
+        data[index] = (Math.random() * 2 - 1) * (1 - index / data.length);
+      }
+
+      const source = rememberAudioNode(context.createBufferSource());
+      const filter = rememberAudioNode(context.createBiquadFilter());
+      const gain = rememberAudioNode(context.createGain());
+      source.buffer = buffer;
+      filter.type = "bandpass";
+      filter.frequency.setValueAtTime(900 + Math.random() * 1200, start);
+      gain.gain.setValueAtTime(volume, start);
+      gain.gain.exponentialRampToValueAtTime(0.001, start + duration);
+      source.connect(filter);
+      filter.connect(gain);
+      gain.connect(context.destination);
+      source.start(start);
+      source.stop(start + duration);
+    }
+
+    function playSynthNote(context, destination, options) {
+      const osc = rememberAudioNode(context.createOscillator());
+      const gain = rememberAudioNode(context.createGain());
+      osc.type = options.type || "sawtooth";
+      osc.frequency.setValueAtTime(options.frequency, options.start);
+      if (options.bendTo) {
+        osc.frequency.exponentialRampToValueAtTime(options.bendTo, options.start + options.duration * 0.9);
+      }
+      gain.gain.setValueAtTime(0.0001, options.start);
+      gain.gain.exponentialRampToValueAtTime(options.volume, options.start + 0.018);
+      gain.gain.exponentialRampToValueAtTime(0.001, options.start + options.duration);
+      osc.connect(gain);
+      gain.connect(destination);
+      osc.start(options.start);
+      osc.stop(options.start + options.duration + 0.04);
+    }
+
+    function playKick(context, start, destination) {
+      playSynthNote(context, destination, {
+        type: "sine",
+        frequency: 92,
+        bendTo: 38,
+        start,
+        duration: 0.16,
+        volume: 0.32
+      });
+    }
+
+    function playHat(context, start) {
+      playNoiseBurst(context, start, 0.045, 0.035);
+    }
+
+    function playSnare(context, start) {
+      playNoiseBurst(context, start, 0.12, 0.11);
+    }
+
+    function playSetlistTrack(trackIndex, title) {
+      const context = getAudioContext();
+      stopSetlistAudio();
+
+      const now = context.currentTime + 0.03;
+      const song = trackSongs[trackIndex % trackSongs.length];
+      const beat = 60 / song.bpm;
+      const step = beat / 2;
+      const bars = 12;
+      const stepsPerBar = 8;
+      const trackLength = bars * stepsPerBar * step + 1.2;
+      const master = rememberAudioNode(context.createGain());
+      const shaper = rememberAudioNode(context.createWaveShaper());
+      const delay = rememberAudioNode(context.createDelay());
+      const feedback = rememberAudioNode(context.createGain());
+      const tone = rememberAudioNode(context.createBiquadFilter());
+
+      const curve = new Float32Array(256);
+      for (let index = 0; index < curve.length; index += 1) {
+        const x = (index / 128) - 1;
+        curve[index] = Math.tanh(x * (4.2 + trackIndex * 0.25));
+      }
+      shaper.curve = curve;
+      delay.delayTime.value = 0.13 + (trackIndex % 4) * 0.018;
+      feedback.gain.value = 0.28;
+      tone.type = "lowpass";
+      tone.frequency.setValueAtTime(1900 + trackIndex * 120, now);
+      tone.Q.value = 0.8;
+      master.gain.setValueAtTime(0.0001, now);
+      master.gain.exponentialRampToValueAtTime(0.24, now + 0.18);
+      master.gain.setValueAtTime(0.24, now + trackLength - 0.9);
+      master.gain.exponentialRampToValueAtTime(0.001, now + trackLength);
+
+      shaper.connect(delay);
+      delay.connect(feedback);
+      feedback.connect(delay);
+      delay.connect(tone);
+      shaper.connect(tone);
+      tone.connect(master);
+      master.connect(context.destination);
+
+      for (let bar = 0; bar < bars; bar += 1) {
+        for (let stepIndex = 0; stepIndex < stepsPerBar; stepIndex += 1) {
+          const start = now + (bar * stepsPerBar + stepIndex) * step;
+          const riffRatio = song.riff[(stepIndex + bar) % song.riff.length];
+          const leadRatio = song.lead[(stepIndex * 2 + bar) % song.lead.length];
+          const palmMute = stepIndex % 2 === 0 || bar > 7;
+
+          playSynthNote(context, shaper, {
+            type: palmMute ? "square" : "sawtooth",
+            frequency: song.root * riffRatio,
+            bendTo: song.root * riffRatio * (stepIndex % 4 === 3 ? 0.5 : 1.01),
+            start,
+            duration: step * (palmMute ? 0.78 : 1.45),
+            volume: palmMute ? 0.19 : 0.14
+          });
+
+          if (stepIndex === 0 || stepIndex === 4 || (bar > 5 && stepIndex === 6)) {
+            playKick(context, start, context.destination);
+          }
+
+          if (stepIndex === 2 || stepIndex === 6) {
+            playSnare(context, start + 0.01);
+          }
+
+          if (stepIndex % 2 === 1) {
+            playHat(context, start);
+          }
+
+          if ((bar === 3 || bar === 7 || bar === 11) && stepIndex >= 4) {
+            playSynthNote(context, shaper, {
+              type: "triangle",
+              frequency: song.root * leadRatio * 2,
+              bendTo: song.root * leadRatio * 2.12,
+              start,
+              duration: step * 1.25,
+              volume: 0.075
+            });
+          }
+        }
+      }
+
+      playNoiseBurst(context, now + 0.04, 0.3, 0.13);
+      playNoiseBurst(context, now + trackLength * 0.34, 0.45, 0.08);
+      playNoiseBurst(context, now + trackLength * 0.67, 0.52, 0.09);
+      playNoiseBurst(context, now + trackLength - 0.65, 0.55, 0.12);
+
+      audioStatus.textContent = `Playing long track: ${title}`;
+      activeAudioTimers.push(setTimeout(() => {
+        if (audioStatus.textContent === `Playing long track: ${title}`) {
+          audioStatus.textContent = "Audio armed: click a track";
+        }
+      }, trackLength * 1000));
+    }
+
+    function playSlasherScream(tile) {
+      const nowMs = performance.now();
+      if (nowMs - lastScreamTime < 520) {
+        return;
+      }
+      lastScreamTime = nowMs;
+
+      const context = getAudioContext();
+      const now = context.currentTime + 0.02;
+      const screamGain = rememberAudioNode(context.createGain());
+      const filter = rememberAudioNode(context.createBiquadFilter());
+      const wobble = rememberAudioNode(context.createOscillator());
+      const wobbleGain = rememberAudioNode(context.createGain());
+      const scream = rememberAudioNode(context.createOscillator());
+      const shriek = rememberAudioNode(context.createOscillator());
+      const shriekGain = rememberAudioNode(context.createGain());
+
+      scream.type = "sawtooth";
+      scream.frequency.setValueAtTime(1180 + Math.random() * 180, now);
+      scream.frequency.exponentialRampToValueAtTime(410, now + 0.62);
+      shriek.type = "square";
+      shriek.frequency.setValueAtTime(2400 + Math.random() * 320, now);
+      shriek.frequency.exponentialRampToValueAtTime(1250, now + 0.5);
+      wobble.type = "sine";
+      wobble.frequency.value = 13;
+      wobbleGain.gain.value = 95;
+      wobble.connect(wobbleGain);
+      wobbleGain.connect(scream.frequency);
+      wobbleGain.connect(shriek.frequency);
+
+      filter.type = "bandpass";
+      filter.frequency.setValueAtTime(2600, now);
+      filter.frequency.exponentialRampToValueAtTime(900, now + 0.62);
+      filter.Q.value = 14;
+      screamGain.gain.setValueAtTime(0.0001, now);
+      screamGain.gain.exponentialRampToValueAtTime(0.48, now + 0.035);
+      screamGain.gain.exponentialRampToValueAtTime(0.001, now + 0.68);
+      shriekGain.gain.setValueAtTime(0.0001, now);
+      shriekGain.gain.exponentialRampToValueAtTime(0.22, now + 0.02);
+      shriekGain.gain.exponentialRampToValueAtTime(0.001, now + 0.42);
+
+      scream.connect(filter);
+      shriek.connect(shriekGain);
+      filter.connect(screamGain);
+      shriekGain.connect(context.destination);
+      screamGain.connect(context.destination);
+      wobble.start(now);
+      scream.start(now);
+      shriek.start(now);
+      wobble.stop(now + 0.7);
+      scream.stop(now + 0.7);
+      shriek.stop(now + 0.45);
+      playNoiseBurst(context, now + 0.02, 0.34, 0.22);
+      playNoiseBurst(context, now + 0.18, 0.2, 0.12);
+
+      tile.classList.add("screaming");
+      audioStatus.textContent = `${tile.dataset.label} screamed`;
+      setTimeout(() => tile.classList.remove("screaming"), 520);
+    }
+
+    function clamp(value, min, max) {
+      return Math.max(min, Math.min(max, value));
+    }
+
+    function distance(a, b) {
+      return Math.hypot(a.x - b.x, a.y - b.y);
+    }
+
+    function placeElement(element, point) {
+      element.style.left = `${point.x}%`;
+      element.style.top = `${point.y}%`;
+    }
+
+    function randomPoint() {
+      return {
+        x: 10 + Math.random() * 80,
+        y: 12 + Math.random() * 76
+      };
+    }
+
+    function updateGameHud() {
+      scoreReadout.textContent = `Score: ${String(score).padStart(3, "0")}`;
+      healthReadout.textContent = `Signal: ${Math.max(0, Math.ceil(health))}%`;
+      levelReadout.textContent = `Wave: ${String(wave).padStart(2, "0")}`;
+      objectiveReadout.textContent = `Sigils: ${collected}/6`;
+      pitEnergy = clamp(collected * 16 + (100 - health) * 0.25, 0, 100);
+      updateFearMeter();
+    }
+
+    function spawnGhostText(text, point = randomPoint()) {
+      const ghost = document.createElement("span");
+      ghost.className = "ghost-text";
+      ghost.textContent = text;
+      ghost.style.left = `${point.x}%`;
+      ghost.style.top = `${point.y}%`;
+      gameArena.appendChild(ghost);
+      ghost.addEventListener("animationend", () => ghost.remove());
+    }
+
+    function moveSigil() {
+      let next = randomPoint();
+      while (distance(next, player) < 22) {
+        next = randomPoint();
+      }
+      sigil.x = next.x;
+      sigil.y = next.y;
+      placeElement(sigilEl, sigil);
+    }
+
+    function addEnemy(index) {
+      const point = randomPoint();
+      const element = document.createElement("div");
+      element.className = "enemy";
+      element.textContent = index % 2 ? "!" : "X";
+      gameArena.appendChild(element);
+      enemies.push({
+        x: point.x,
+        y: point.y,
+        speed: 10 + wave * 2.3 + index,
+        drift: Math.random() * 10,
+        element
+      });
+      placeElement(element, point);
+    }
+
+    function clearEnemies() {
+      enemies.splice(0).forEach((enemy) => enemy.element.remove());
+    }
+
+    function setOverlay(message, hidden = false) {
+      gameOverlay.innerHTML = message;
+      gameOverlay.classList.toggle("hidden", hidden);
+    }
+
+    function startGame() {
+      const nextWave = Number(startGameButton.dataset.nextWave || "1");
+      cancelAnimationFrame(animationFrame);
+      gameRunning = true;
+      if (nextWave === 1) {
+        score = 0;
+      }
+      health = 100;
+      wave = nextWave;
+      collected = 0;
+      hitCooldown = 0;
+      startGameButton.dataset.nextWave = "1";
+      startGameButton.textContent = "Restart Nightmare";
+      player.x = 50;
+      player.y = 50;
+      clearEnemies();
+      for (let index = 0; index < 2; index += 1) {
+        addEnemy(index);
+      }
+      moveSigil();
+      placeElement(playerEl, player);
+      updateGameHud();
+      setOverlay("", true);
+      gameArena.focus();
+      lastFrameTime = performance.now();
+      animationFrame = requestAnimationFrame(gameLoop);
+    }
+
+    function winWave() {
+      gameRunning = false;
+      cancelAnimationFrame(animationFrame);
+      score += wave * 66;
+      wave += 1;
+      collected = 0;
+      health = clamp(health + 18, 0, 100);
+      quoteOutput.textContent = "Wave cleared. The cabinet pretends to be impressed.";
+      body.classList.add("corrupted");
+      setTimeout(() => body.classList.remove("corrupted"), 1100);
+      setOverlay(`Wave ${String(wave - 1).padStart(2, "0")} Cleared<br />Press Start To Descend`);
+      startGameButton.dataset.nextWave = String(wave);
+      startGameButton.textContent = "Next Wave";
+      updateGameHud();
+    }
+
+    function loseGame() {
+      gameRunning = false;
+      cancelAnimationFrame(animationFrame);
+      body.classList.add("corrupted");
+      quoteOutput.textContent = "Game over. Your initials have been replaced with static.";
+      setOverlay("Game Over<br />The Cabinet Keeps Your Name");
+      startGameButton.dataset.nextWave = "1";
+      startGameButton.textContent = "Retry Nightmare";
+      setTimeout(() => body.classList.remove("corrupted"), 2600);
+    }
+
+    function collectSigil() {
+      collected += 1;
+      score += 25 + wave * 10;
+      spawnGhostText(["GOOD", "WRONG", "AGAIN", "RUN"][Math.floor(Math.random() * 4)], sigil);
+      randomWarning();
+      moveSigil();
+      if (collected >= 6) {
+        winWave();
+      }
+    }
+
+    function damagePlayer() {
+      if (hitCooldown > 0) {
+        return;
+      }
+      hitCooldown = 0.9;
+      health -= 18 + wave * 2;
+      gameArena.classList.add("shake");
+      spawnGhostText("SIGNAL HIT", player);
+      setTimeout(() => gameArena.classList.remove("shake"), 760);
+      if (health <= 0) {
+        health = 0;
+        updateGameHud();
+        loseGame();
+      }
+    }
+
+    function gameLoop(time) {
+      if (!gameRunning) {
+        return;
+      }
+
+      const delta = Math.min((time - lastFrameTime) / 1000, 0.04);
+      lastFrameTime = time;
+      hitCooldown = Math.max(0, hitCooldown - delta);
+
+      let dx = 0;
+      let dy = 0;
+      if (keys.has("ArrowLeft") || keys.has("a")) dx -= 1;
+      if (keys.has("ArrowRight") || keys.has("d")) dx += 1;
+      if (keys.has("ArrowUp") || keys.has("w")) dy -= 1;
+      if (keys.has("ArrowDown") || keys.has("s")) dy += 1;
+
+      if (dx || dy) {
+        const length = Math.hypot(dx, dy);
+        player.x = clamp(player.x + (dx / length) * player.speed * delta, 4, 96);
+        player.y = clamp(player.y + (dy / length) * player.speed * delta, 6, 94);
+        placeElement(playerEl, player);
+      }
+
+      enemies.forEach((enemy, index) => {
+        const angle = Math.atan2(player.y - enemy.y, player.x - enemy.x);
+        enemy.x += Math.cos(angle) * enemy.speed * delta;
+        enemy.y += Math.sin(angle) * enemy.speed * delta;
+        enemy.x += Math.sin(time / 220 + enemy.drift) * delta * (index + 1) * 2.2;
+        enemy.y += Math.cos(time / 260 + enemy.drift) * delta * (index + 1) * 1.7;
+        enemy.x = clamp(enemy.x, 3, 97);
+        enemy.y = clamp(enemy.y, 5, 95);
+        placeElement(enemy.element, enemy);
+        if (distance(enemy, player) < 6) {
+          damagePlayer();
+        }
+      });
+
+      if (distance(player, sigil) < 7) {
+        collectSigil();
+      }
+
+      updateGameHud();
+      animationFrame = requestAnimationFrame(gameLoop);
+    }
+
+    // The corruption button temporarily turns the whole page into a broken tape.
+    corruptButton.addEventListener("click", () => {
+      body.classList.add("corrupted");
+      randomWarning();
+      if (gameRunning) {
+        health = clamp(health - 10, 0, 100);
+        spawnGhostText("CHEAT CODE REJECTED", randomPoint());
+      }
+      setTimeout(() => body.classList.remove("corrupted"), 3300);
+    });
+
+    // Mode toggle shifts the palette from grimy nightmare to brighter neon.
+    modeToggle.addEventListener("click", () => {
+      body.classList.toggle("neon-mode");
+      modeToggle.textContent = body.classList.contains("neon-mode") ? "✦" : "☾";
+      modeToggle.title = body.classList.contains("neon-mode") ? "Toggle Nightmare Mode" : "Toggle Neon Mode";
+    });
+
+    quoteButton.addEventListener("click", randomWarning);
+
+    // Keyboard and mobile controls drive the corrupted arcade arena.
+    startGameButton.addEventListener("click", startGame);
+
+    window.addEventListener("keydown", (event) => {
+      const key = event.key.toLowerCase();
+      if (["arrowleft", "arrowright", "arrowup", "arrowdown", "a", "d", "w", "s"].includes(key)) {
+        event.preventDefault();
+        keys.add(event.key.startsWith("Arrow") ? event.key : key);
+      }
+      if (!gameRunning && (event.key === "Enter" || event.key === " ")) {
+        startGame();
+      }
+    });
+
+    window.addEventListener("keyup", (event) => {
+      const key = event.key.toLowerCase();
+      keys.delete(event.key.startsWith("Arrow") ? event.key : key);
+    });
+
+    dpadButtons.forEach((button) => {
+      const dir = button.dataset.dir;
+      const map = { up: "ArrowUp", down: "ArrowDown", left: "ArrowLeft", right: "ArrowRight" };
+      button.addEventListener("pointerdown", () => keys.add(map[dir]));
+      button.addEventListener("pointerup", () => keys.delete(map[dir]));
+      button.addEventListener("pointerleave", () => keys.delete(map[dir]));
+    });
+
+    // Nightmare cards reveal their hidden messages when selected.
+    nightmareCards.forEach((card) => {
+      card.addEventListener("click", () => {
+        const message = card.querySelector(".nightmare-message");
+        card.classList.toggle("revealed");
+        message.textContent = card.classList.contains("revealed")
+          ? card.dataset.message
+          : "Click to reveal the curse.";
+      });
+    });
+
+    // The slasher poster tiles shriek when hovered or keyboard-focused.
+    slasherTiles.forEach((tile) => {
+      tile.addEventListener("pointerenter", () => playSlasherScream(tile));
+      tile.addEventListener("focus", () => playSlasherScream(tile));
+    });
+
+    // Haunted setlist interaction marks one track as currently playing.
+    trackItems.forEach((item, index) => {
+      item.addEventListener("click", () => {
+        trackItems.forEach((track) => track.classList.remove("playing"));
+        trackItems.forEach((track) => track.classList.remove("sound-hit"));
+        item.classList.add("playing");
+        item.classList.add("sound-hit");
+        const trackTitle = item.textContent.replace(" NOW PLAYING", "");
+        quoteOutput.textContent = `Now playing: ${trackTitle}`;
+        playSetlistTrack(index, trackTitle);
+        item.addEventListener("animationend", () => item.classList.remove("sound-hit"), { once: true });
+        if (gameRunning) {
+          score += 13;
+          spawnGhostText("BASS BOOST", randomPoint());
+        }
+      });
+    });
+
+    stopAudioButton.addEventListener("click", () => {
+      stopSetlistAudio();
+      trackItems.forEach((track) => track.classList.remove("playing"));
+    });
+
+    placeElement(playerEl, player);
+    placeElement(sigilEl, sigil);
+    updateFearMeter();
+    updateGameHud();
+  </script>
+</body>
+</html>
