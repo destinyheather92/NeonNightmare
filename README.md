@@ -6,7 +6,9 @@ It mixes gothic neon visuals, corrupted VHS effects, 80s slasher-inspired origin
 
 ## Features
 
-- One-file site: `neonNightmare.html`
+- Main page: `neonNightmare.html`
+- Styles: `style.css`
+- Interactions and audio: `script.js`
 - No external libraries or assets
 - Responsive desktop and mobile layout
 - VHS static, scanlines, glitch text, flicker, and corruption effects
@@ -45,7 +47,7 @@ For GitHub Pages, either rename `neonNightmare.html` back to `index.html` before
 
 ```powershell
 git init
-git add neonNightmare.html README.md
+git add neonNightmare.html style.css script.js README.md
 git commit -m "Create Neon Nightmare site"
 git branch -M main
 git remote add origin https://github.com/YOUR-USERNAME/YOUR-REPO-NAME.git
@@ -69,4 +71,4 @@ https://YOUR-USERNAME.github.io/YOUR-REPO-NAME/neonNightmare.html
 
 ## Notes
 
-All graphics and sounds are generated in the browser using HTML, CSS, SVG, and the Web Audio API. The slasher visuals are original homage-style graphics, not copied movie artwork.
+All graphics and sounds are generated in the browser using HTML, CSS, SVG, JavaScript, and the Web Audio API. The slasher visuals are original homage-style graphics, not copied movie artwork.
