@@ -41,33 +41,7 @@ http://127.0.0.1:8787/neonNightmare.html
 - Gallery: hover or focus the slasher tiles to trigger screams
 - Stop music: click `Stop Audio`
 
-## Deploy With GitHub Pages
 
-For GitHub Pages, either rename `neonNightmare.html` back to `index.html` before publishing, or publish it directly and visit `/neonNightmare.html`.
-
-```powershell
-git init
-git add neonNightmare.html style.css script.js README.md
-git commit -m "Create Neon Nightmare site"
-git branch -M main
-git remote add origin https://github.com/YOUR-USERNAME/YOUR-REPO-NAME.git
-git push -u origin main
-```
-
-Then in GitHub:
-
-1. Go to your repository settings.
-2. Open `Pages`.
-3. Set source to `Deploy from a branch`.
-4. Choose branch `main`.
-5. Choose folder `/root`.
-6. Save.
-
-Your site will publish at:
-
-```text
-https://YOUR-USERNAME.github.io/YOUR-REPO-NAME/neonNightmare.html
-```
 
 ## Notes
 
